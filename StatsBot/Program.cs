@@ -24,7 +24,7 @@ namespace StatsBot
 
         static void Main(string[] args)
         {
-            _bot = new TelegramBotClient("305734569:AAEbk-q30NFBTHdCGRBzlcLv_gPgqz0LbJ4");
+            _bot = new TelegramBotClient("");
             _bot.OnMessage += BotOnMessageReceived;
             //Bot.OnCallbackQuery += BotOnCallbackQueryReceived;
             //Bot.OnMessageEdited += BotOnMessageReceived;
