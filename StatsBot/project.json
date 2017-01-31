@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "copyToOutput": [
+      "nlog.config"
+    ]
+  },
+
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "NLog": "5.0.0-beta04",
+    "System.Runtime.Loader": "4.3.0",
+    "Telegram.Bot": "10.4.0",
+    "Zyborg.NLog.Targets.Logentries": "0.5.0"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}
