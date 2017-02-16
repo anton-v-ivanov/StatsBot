@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using System.Linq;
 
 namespace StatsBot
 {
@@ -20,6 +19,7 @@ namespace StatsBot
         private static Timer _timer;
         private static readonly object SyncObj = new object();
         private const string RulesUrl = "";
+		const string Rules = "Правила: " + RulesUrl;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         static void Main(string[] args)
@@ -71,7 +71,7 @@ namespace StatsBot
             Logger.Error(receiveErrorEventArgs.ApiRequestException);
         }
 
-        private static async void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
+        private static void BotOnMessageReceived(object sender, MessageEventArgs messageEventArgs)
         {
             var message = messageEventArgs.Message;
             
@@ -85,16 +85,15 @@ namespace StatsBot
                     var usage = @"Бот собирает все сообщения в чатике и выводит статистику. Команды:
 /stat - статистика
 /rules - правила";
-                    await _bot.SendTextMessageAsync(message.Chat.Id, usage);
+                    BotReply(message.Chat.Id, usage);
                 }
                 else if (message.Text.StartsWith("/stat"))
                 {
-                    SendStats(message);
+                    SendStats(message.Chat.Id);
                 }
                 else if (message.Text.StartsWith("/rules"))
                 {
-                    var rules = "Правила: " + RulesUrl;
-                    await _bot.SendTextMessageAsync(message.Chat.Id, rules);
+                    BotReply(message.Chat.Id, Rules);
                 }
                 else
                 {
@@ -107,37 +106,53 @@ namespace StatsBot
             }
         }
 
+        private static void BotReply(long chatId, string text)
+        {
+            try
+            {
+                _bot.SendTextMessageAsync(chatId, text).Wait();
+            }
+            catch (AggregateException ae)
+            {
+                ae.Handle(e =>
+                {
+                    Logger.Error(e);
+                    return true;
+                });
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception);    
+            }
+        }
+
         private static void SendDailyStats()
         {
-            var tasks = new List<Task>();
             foreach (var kv in StatsDictionary)
             {
                 var chatId = kv.Key;
                 var dict = kv.Value;
                 var statsString = GetStatsString(dict);
-                tasks.Add(_bot.SendTextMessageAsync(chatId, statsString));
+                BotReply(chatId, statsString);
             }
-
-            Task.WaitAll(tasks.ToArray());
         }
 
-        private static async void SendStats(Message message)
+        private static void SendStats(long chatId)
         {
-            Dictionary<int, SenderInfo> dict;
-
-            if (!StatsDictionary.TryGetValue(message.Chat.Id, out dict))
-            {
-                await _bot.SendTextMessageAsync(message.Chat.Id, "Хз, что за чатик");
-                return;
-            }
-
             string statsString;
             lock (SyncObj)
             {
+                Dictionary<int, SenderInfo> dict;
+                if (!StatsDictionary.TryGetValue(chatId, out dict))
+                {
+                    BotReply(chatId, "Хз, что за чатик");
+                    return;
+                }
+
                 statsString = GetStatsString(dict);
             }
 
-            await _bot.SendTextMessageAsync(message.Chat.Id, statsString);
+            BotReply(chatId, statsString);
         }
 
         private static string GetStatsString(Dictionary<int, SenderInfo> dict)
