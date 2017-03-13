@@ -1,0 +1,7 @@
+﻿{
+	"ConnectionStrings": {
+		"DbConnection": "server=localhost;userid=root;pwd=;port=3306;database=tlenbot;sslmode=none;"
+	},
+
+	"TelegramToken": ""
+}
