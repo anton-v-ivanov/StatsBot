@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using StatsBot.Entities;
 using Telegram.Bot.Types;
-using TlenBot.Entities;
 
-namespace TlenBot.Managers
+namespace StatsBot.Managers
 {
 	internal interface IStatsManager
 	{

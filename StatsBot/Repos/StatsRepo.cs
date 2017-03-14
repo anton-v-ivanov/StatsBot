@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapper;
 using MySql.Data.MySqlClient;
-using TlenBot.Entities;
+using StatsBot.Entities;
 
-namespace TlenBot.Repos
+namespace StatsBot.Repos
 {
 	internal class StatsRepo : IStatsRepo
 	{

@@ -6,10 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TlenBot.Entities;
-using TlenBot.Repos;
+using StatsBot.Entities;
+using StatsBot.Repos;
 
-namespace TlenBot.Managers
+namespace StatsBot.Managers
 {
 	internal class StatsManager : IStatsManager
 	{
@@ -27,7 +27,7 @@ namespace TlenBot.Managers
 		{
 			var info = new MessageInfo(message);
 			await _repository.EnsureSenderExists(info);
-            var date = TimeZoneInfo.ConvertTime(DateTime.Now, Consts.MoscowTimeZone).Date;
+            var date = TimeZoneManager.GetMoscowNowDate();
             await _repository.AddMessage(message.Chat.Id, info, date);
 		}
 
@@ -105,8 +105,8 @@ namespace TlenBot.Managers
 		
 		private async void TimeToSendStats(object state)
 		{
-			var now = TimeZoneInfo.ConvertTime(DateTime.Now, Consts.MoscowTimeZone);
-			if (now.Hour != 0 || now.Minute != 0 || now.Second != 0)
+			var now = TimeZoneManager.GetMoscowNowTime();
+			if (now.Hour != 23 || now.Minute != 59 || now.Second != 59)
 				return;
 
 			var chats = await _repository.GetChatsIds();

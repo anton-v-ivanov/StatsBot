@@ -23,3 +23,5 @@ CREATE TABLE IF NOT EXISTS `tlenbot`.`messages` (
     ON UPDATE NO ACTION,
 CONSTRAINT `UN_data` UNIQUE (`ChatId`,`ParticipantId`,`Date`,`MessageType`));
 
+ALTER DATABASE tlenbot CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+ALTER TABLE participants CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

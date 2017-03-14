@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TlenBot.Entities;
+using StatsBot.Entities;
 
-namespace TlenBot.Repos
+namespace StatsBot.Repos
 {
 	internal interface IStatsRepo
 	{

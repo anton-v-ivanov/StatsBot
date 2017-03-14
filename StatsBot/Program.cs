@@ -3,14 +3,14 @@ using System.Runtime.Loader;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
-using TlenBot.Managers;
+using StatsBot.Managers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
-using TlenBot.Entities;
-using TlenBot.Repos;
+using StatsBot.Entities;
+using StatsBot.Repos;
 using Microsoft.Extensions.Logging;
 
-namespace TlenBot
+namespace StatsBot
 {
     class Program
     {
@@ -29,14 +29,13 @@ namespace TlenBot
 					})
 				.Build();
             
-            var loggerFactory = new LoggerFactory().AddConsole().AddFile("Logs/tlenbot-{Date}.log");
+            var loggerFactory = new LoggerFactory().AddConsole().AddFile("Logs/statsbot-{Date}.log");
             _logger = loggerFactory.CreateLogger<Program>();
 
             _bot = new TelegramBotClient(configuration["TelegramToken"]);
             _bot.OnMessage += BotOnMessageReceived;
             _bot.OnReceiveError += BotOnReceiveError;
-            _logger.LogInformation("Bot started");
-			
+            
 			IStatsRepo repo = new StatsRepo(configuration.GetConnectionString("DbConnection"));
 			_manager = new StatsManager(repo);
 			_manager.OnTimeToSendStats += SendDailyStats;
@@ -44,6 +43,8 @@ namespace TlenBot
 			_bot.StartReceiving();
 
             AssemblyLoadContext.Default.Unloading += MethodInvokedOnSigTerm;
+
+            _logger.LogInformation($"{TimeZoneManager.GetMoscowNowTime()}: Bot started");
 
             while (true)
             {

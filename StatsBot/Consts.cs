@@ -1,19 +1,9 @@
-﻿using System;
-
-namespace TlenBot
+﻿namespace StatsBot
 {
 	internal static class Consts
 	{
-        internal static TimeZoneInfo MoscowTimeZone
-        {
-            get
-            {
-                return TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-                //return TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");                
-            }
-        }
-        private const string RulesUrl = "https://docs.google.com/document/d/153LbaX847l9-fpiPznRitO-mZSk0Fy2CumZKb8Lt-v0/edit?usp=sharing";
-		internal const string Rules = "Правила тлена: " + RulesUrl;
+        private const string RulesUrl = "";
+		internal const string Rules = "Правила: " + RulesUrl;
 		internal const string Usage = @"Бот собирает все сообщения в чатике и выводит статистику.
 Команды:
 /rules -- правила

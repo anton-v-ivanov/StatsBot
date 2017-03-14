@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using StatsBot.Managers;
 
-namespace TlenBot.Entities
+namespace StatsBot.Entities
 {
 	public class StatsCommand
 	{
@@ -31,7 +32,7 @@ namespace TlenBot.Entities
 			// /stats неделя
 			// /stats месяц
 			var tokens = text.Split(' ');
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, Consts.MoscowTimeZone).Date;
+		    var now = TimeZoneManager.GetMoscowNowDate();
 
             if (tokens.Length == 2)
 			{
@@ -51,28 +52,25 @@ namespace TlenBot.Entities
 
 			if (tokens.Length > 2)
 			{
-				// /stats 11.02.2017 12.03.2017 @tonageme
-				DateTime from;
-				if (!DateTime.TryParseExact(tokens[1], "dd.MM.yy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out from))
-				{
-					throw new FormatException("Формат для даты: dd.mm.yy. Пример: 29.01.17");
-				}
+                // /stats 11.02.2017 12.03.2017 @tonageme
+                if (!DateTime.TryParseExact(tokens[1], "dd.MM.yy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime from))
+                {
+                    throw new FormatException("Формат для даты: dd.mm.yy. Пример: 29.01.17");
+                }
 
-				DateTime to;
-				if (!DateTime.TryParseExact(tokens[2], "dd.MM.yy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out to))
-				{
-					throw new FormatException("Формат для даты: dd.mm.yy. Пример: 29.01.17");
-				}
+                if (!DateTime.TryParseExact(tokens[2], "dd.MM.yy", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime to))
+                {
+                    throw new FormatException("Формат для даты: dd.mm.yy. Пример: 29.01.17");
+                }
 
-				var command = new StatsCommand(from, to, StatsType.Period);
+                var command = new StatsCommand(from, to, StatsType.Period);
 				if (tokens.Length > 3)
 				{
-					int id;
-					if (int.TryParse(tokens[3], out id))
-						command.UserId = id;
-					else
-						command.UserName = tokens[3].Replace("@", "");
-				}
+                    if (int.TryParse(tokens[3], out int id))
+                        command.UserId = id;
+                    else
+                        command.UserName = tokens[3].Replace("@", "");
+                }
 
 				return command;
 			}
