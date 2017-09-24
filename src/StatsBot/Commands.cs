@@ -1,4 +1,4 @@
-﻿namespace StatsBot
+﻿namespace TlenBot
 {
 	public class Commands
 	{

@@ -1,0 +1,19 @@
+﻿{
+  "ConnectionStrings": {
+    "DbConnection": "server=localhost;userid=USERID;pwd=PASSWORD;port=3306;database=tlenbot;sslmode=none;"
+  },
+
+  "TelegramToken": "ENTER_YOUR_TELEGRAM_TOKEN_HERE",
+
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Literate", "Serilog.Sinks.RollingFile" ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      { "Name": "LiterateConsole" },
+      {
+        "Name": "RollingFile",
+        "Args": { "pathFormat": "./logs/{Date}.txt" }
+      }
+    ]
+  }
+}

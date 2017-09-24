@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatsBot", "StatsBot\StatsBot.csproj", "{68005411-2820-48F4-8039-14E6FC17DF07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatsBot", "src\StatsBot\StatsBot.csproj", "{68005411-2820-48F4-8039-14E6FC17DF07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

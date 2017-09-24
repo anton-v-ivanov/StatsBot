@@ -1,4 +1,4 @@
-﻿namespace StatsBot.Entities
+﻿namespace TlenBot.Entities
 {
 	public enum StatsType
 	{
