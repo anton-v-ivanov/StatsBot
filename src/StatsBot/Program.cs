@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Runtime.Loader;
+using System.Threading;
 using Autofac;
 using TlenBot.Managers;
 using Microsoft.Extensions.Configuration;
@@ -30,17 +30,20 @@ namespace TlenBot
             Init();
 
             Log.Information("Bot started. Press q to exit");
-
-            AssemblyLoadContext.Default.Unloading += MethodInvokedOnSigTerm;
-
-            while (true)
+            
+            var stopRequested = false;
+            Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                if (Console.Read() != 'q')
-                    continue;
-
                 Log.Information("Exit requested");
-                break;
+                stopRequested = true;
+            };
+
+            while (!stopRequested)
+            {
+                Thread.Sleep(1000);
             }
+
+            _container.Resolve<IBotManager>().Stop();
         }
 
         private static void Init()
@@ -51,11 +54,6 @@ namespace TlenBot
             _container.Resolve<IScheduleManager>().Init();
 
             botManager.Start();
-        }
-
-        private static void MethodInvokedOnSigTerm(AssemblyLoadContext obj)
-        {
-            _container.Resolve<IBotManager>().Stop();
         }
     }
 }
