@@ -1,13 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using StatsBot.Entities;
 using Telegram.Bot.Types;
-using TlenBot.Entities;
 
-namespace TlenBot.Managers
+namespace StatsBot.Managers
 {
     public interface IStatsManager
     {
-        Task AddToStats(Message message);
-
-        Task<string> GetStatsString(long chatId, StatsCommand command);
+        Task AddToStatsAsync(Update update, CancellationToken cancellationToken);
+        Task<string> GetStatsStringAsync(StatsCommand command, CancellationToken cancellationToken);
+        Task<IEnumerable<long>> GetChatsIdsAsync(CancellationToken cancellationToken);
     }
 }

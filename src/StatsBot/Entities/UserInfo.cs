@@ -1,4 +1,4 @@
-﻿namespace TlenBot.Entities
+﻿namespace StatsBot.Entities
 {
     public class UserInfo
     {
@@ -15,7 +15,7 @@
             LastName = lastName;
         }
 
-        public string GetName()
+        public override string ToString()
         {
             if (string.IsNullOrEmpty(FirstName) && string.IsNullOrEmpty(LastName) && string.IsNullOrEmpty(UserName))
                 return Id.ToString();
@@ -32,6 +32,19 @@
                 result += " " + LastName;
 
             return result;
+        }
+
+        protected bool Equals(UserInfo other)
+        {
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((UserInfo)obj);
         }
 
         public override int GetHashCode()

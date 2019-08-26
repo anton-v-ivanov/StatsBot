@@ -1,11 +1,9 @@
 ﻿using System;
 
-namespace TlenBot.Managers
+namespace StatsBot.Managers
 {
     public interface ITimeZoneManager
     {
-        DateTime GetMoscowNowDate();
-        DateTime GetMoscowNowTime();
-        Tuple<int, int> GetMoscowEndOfDayInLocalTime();
+        DateTimeOffset GetMoscowDate(DateTime date);
     }
 }

@@ -1,0 +1,6 @@
+Dockerfile
+README.md
+**/obj/
+**/bin/
+bin\
+obj\

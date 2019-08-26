@@ -1,102 +1,111 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using StatsBot.Entities;
+using StatsBot.Repos;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TlenBot.Entities;
-using TlenBot.Repos;
 
-namespace TlenBot.Managers
+namespace StatsBot.Managers
 {
     public class StatsManager : IStatsManager
     {
-        private readonly IStatsRepo _repository;
+        private readonly IStatsRepository _repository;
         private readonly ITimeZoneManager _timeZoneManager;
 
-        public StatsManager(IStatsRepo repository, ITimeZoneManager timeZoneManager)
+        public StatsManager(IStatsRepository repository, ITimeZoneManager timeZoneManager)
         {
             _repository = repository;
             _timeZoneManager = timeZoneManager;
         }
 
-        public async Task AddToStats(Message message)
+        public Task AddToStatsAsync(Update update, CancellationToken cancellationToken)
         {
-            var info = new MessageInfo(message);
-            await _repository.EnsureSenderExists(info.User);
-            var date = _timeZoneManager.GetMoscowNowDate();
-            await _repository.AddMessage(message.Chat.Id, info, date);
+            var date = _timeZoneManager.GetMoscowDate(update.Message.Date);
+            var info = new MessageInfo(update.Message, date);
+            return _repository.SaveAsync(info, cancellationToken);
         }
 
-        public async Task<string> GetStatsString(long chatId, StatsCommand command)
+        public async Task<string> GetStatsStringAsync(StatsCommand command, CancellationToken cancellationToken)
         {
             var sb = new StringBuilder();
-            if (command.UserId == 0 && !string.IsNullOrEmpty(command.UserName))
-            {
-                command.UserId = await _repository.GetUserId(command.UserName);
-            }
 
-            var stats = await _repository.GetStats(chatId, command);
+            var stats = (await _repository.GetStatsAsync(command, cancellationToken));
 
             var period = command.GetStringTypeModifier();
             if (stats.Count == 0)
-                return string.Format(@"{0} все молчали ¯\_(ツ)_/¯", period);
+                return $@"{period} все молчали ¯\_(ツ)_/¯";
 
             sb.AppendLine($"Топ тунеядцев {period}");
 
-            foreach (var stat in stats.UserStats)
+            var place = 1;
+            foreach (var (userInfo, count) in stats.UserStats)
             {
-                sb.AppendLine($"{stat.Key.GetName()}: {stat.Value}");
+                sb.AppendLine($"{place++}. {userInfo}: {count}");
             }
 
             sb.AppendLine();
 
             var othersCount = 0;
-            foreach (var chatStat in stats.ChatStats)
+            foreach (var (messageType, count) in stats.ChatStats)
             {
-                switch (chatStat.Key)
+                switch (messageType)
                 {
-                    case MessageType.TextMessage:
-                        sb.AppendLine($"Текстовых сообщений: {chatStat.Value}");
+                    case MessageType.Text:
+                        sb.AppendLine($"Текстовых сообщений: {count}");
                         break;
-                    case MessageType.PhotoMessage:
-                        sb.AppendLine($"Фоток: {chatStat.Value}");
+                    case MessageType.Photo:
+                        sb.AppendLine($"Фоток: {count}");
                         break;
-                    case MessageType.AudioMessage:
-                        sb.AppendLine($"Аудио: {chatStat.Value}");
+                    case MessageType.Audio:
+                        sb.AppendLine($"Аудио: {count}");
                         break;
-                    case MessageType.VideoMessage:
-                        sb.AppendLine($"Видео: {chatStat.Value}");
+                    case MessageType.Video:
+                        sb.AppendLine($"Видео: {count}");
                         break;
-                    case MessageType.VoiceMessage:
-                        sb.AppendLine($"Голосовых сообщений: {chatStat.Value}");
+                    case MessageType.Voice:
+                        sb.AppendLine($"Голосовых сообщений: {count}");
                         break;
-                    case MessageType.StickerMessage:
-                        sb.AppendLine($"Стикеров: {chatStat.Value}");
+                    case MessageType.Sticker:
+                        sb.AppendLine($"Стикеров: {count}");
                         break;
-                    case MessageType.DocumentMessage:
-                        sb.AppendLine($"Гифки, документы: {chatStat.Value}");
+                    case MessageType.Document:
+                        sb.AppendLine($"Гифки, документы: {count}");
                         break;
-                    case MessageType.LocationMessage:
-                        sb.AppendLine($"Локации: {chatStat.Value}");
+                    case MessageType.Location:
+                        sb.AppendLine($"Локации: {count}");
+                        break;
+                    case MessageType.ChatMembersAdded:
+                        if(count > 0)
+                            sb.AppendLine($"Добавлено в чатик: {count}");
+                        break;
+                    case MessageType.ChatMemberLeft:
+                        sb.AppendLine($"Выпилились из чатика: {count} =(");
                         break;
                     default:
-                        othersCount += chatStat.Value;
+                        othersCount += count;
                         break;
                 }
             }
-            sb.AppendLine($"Других: {othersCount}");
+
+            if (othersCount > 0)
+                sb.AppendLine($"Других: {othersCount}");
 
             if (command.Type == StatsType.Week)
             {
-                var perDateStats = await _repository.GetPerDayStats(chatId, command);
                 sb.AppendLine();
                 sb.AppendLine("По дням");
-                foreach (var perDateStat in perDateStats)
+                foreach (var (date, count) in stats.WeekStats)
                 {
-                    sb.AppendLine($"{perDateStat.Key.DayOfWeek}: {perDateStat.Value}");
+                    sb.AppendLine($"{date}: {count}");
                 }
             }
 
             return sb.ToString();
         }
+
+        public Task<IEnumerable<long>> GetChatsIdsAsync(CancellationToken cancellationToken) =>
+            _repository.GetChatsIdsAsync(cancellationToken);
     }
 }
